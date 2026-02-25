@@ -1,4 +1,12 @@
 <!-- Header for the docsite -->
+
+{% comment %}
+! IMPORTANT
+If you include header.html in a page, you must add 
+    {{ search_script }}
+to the bottom of the page to load the javascript that powers the search box.
+{% endcomment %}
+
 <header id="main-header">
   <nav class="navbar navbar-light navbar-expand-lg col" id="main-nav">
     <div class="container-fluid">
@@ -33,6 +41,8 @@
     </div>
   </nav>
 </header>
+
+{% capture search_script %}
 <script>
   /**
    * Add placeholder text for Google Custom Search Engine search box in the page header
@@ -46,3 +56,4 @@
     }
   });
 </script>
+{% endcapture %}
