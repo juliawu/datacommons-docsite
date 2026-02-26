@@ -2,10 +2,10 @@
 
 {% comment %}
 ! IMPORTANT
-If you include header.html in a page, you must add 
-    {{ search_script }}
-to the bottom of the page to load the javascript for the search box.
-This is to make sure the script runs after the page is loaded,
+If you include header.html in a page, you must also include scripts.html
+at the bottom of the page to load the javascript for the search box.
+
+Placing the script at the bottom is to make sure the script runs after the page is loaded,
 and does not interfere with the first contentful paint.
 {% endcomment %}
 
@@ -44,7 +44,7 @@ and does not interfere with the first contentful paint.
   </nav>
 </header>
 
-{% capture search_script %}
+{% capture header_search_script %}
 <script>
   /**
    * Add placeholder text for Google Custom Search Engine search box in the page header
