@@ -1,14 +1,14 @@
 ---
 layout: default
 title: Deploy to Google Cloud
-nav_order: 8
+nav_order: 9
 parent: Build your own Data Commons
 ---
 
 {: .no_toc}
 # Deploy your custom instance to Google Cloud
 
-This page shows you how to create a development environment in Google Cloud Platform, using [Terraform](https://cloud.google.com/docs/terraform){: target="_blank"}. This is step 4 of the [recommended workflow](/custom_dc/index.html#workflow).
+This page shows you how to create a development environment in Google Cloud Platform, using [Terraform](https://cloud.google.com/docs/terraform){: target="_blank"}. This is step 5 of the [recommended workflow](/custom_dc/index.html#workflow).
 
 > **Note**: It's recommended that you go through the [Quickstart](quickstart.md) to start up a local instance before attempting to set up a Google Cloud instance. This will ensure you have all the necessary prerequisites, and give you a chance to test out your own data to make sure everything is working.
 
@@ -51,9 +51,9 @@ The first time you run it, may be prompted to specify a quota project for billin
 <pre>
 gcloud auth application-default set-quota-project <var>PROJECT_ID</var></pre>
 
-## One-time setup: Create service accounts and enable all APIs
+## One-time setup: Enable APIs
 
-`website/deploy/terraform-custom-datacommons/setup.sh` is a convenience script to set up service account roles and all necessary Cloud APIs. To run it:
+`website/deploy/terraform-custom-datacommons/setup.sh` is a convenience script to set up all necessary Cloud APIs. To run it:
 
 <pre>
  cd website/deploy/terraform-custom-datacommons
@@ -80,6 +80,7 @@ We recommend using the Data Commons Terraform scripts to greatly simplify and au
 
 Terraform provisions and runs all the necessary Cloud Platform services:
 
+- Creates a service account for your project and namespace and assigns it various permissions ([IAM roles](https://docs.cloud.google.com/iam/docs/roles-overview){: target="_blank}).
 - Creates a Cloud Storage bucket and top-level folder, which will store your data files. You will upload your input data in the subsequent steps.
 - Creates a Cloud SQL MySQL instance, with basic resources, a default database user and a random password.
 - Creates the Data Commons data management container as a Cloud Run job, with basic resources.
@@ -113,6 +114,7 @@ All of the deployment options you can configure are listed in [deploy/terraform-
 | `dc_web_service_image` | `gcr.io/datcom-ci/datacommons-services:stable` | Specifies the image for the Docker services container. You will want to change this to a custom image once you have created it in [Upload a custom Docker image](#upload). |
 | `make_dc_web_service_public` | `true` | If you intend to restrict access to your instance, set this to `false`. |
 | `disable_google_maps` | `false` | If you want to disable showing Google Maps in the website, set this to `true`. |
+| `dc_search_scope` | `base_and_custom` | If you want to limit AI agent queries to only searching your custom data, set this to `custom_only`. |
 
 Other recommended settings for a production environment are provided in [Launch your Data Commons](launch_cloud.md#create-env).
 
@@ -262,7 +264,7 @@ To view the tables:
 1. In the left panel, select **Cloud SQL Studio**.
 1. In the **Sign in to SQL Studio** page, from the **Database** field, select the database created by the Terraform script.
 1. In the **User** field, select the user created by the Terraform script.
-1. In the **Password** field, enter the password you have retrieved from the Cloud Secret Manager
+1. In the **Password** field, enter the password you have retrieved from the Cloud Secret Manager.
 1. In the left Explorer pane that appears, expand the **Databases** icon, your database name, and **Tables**. The table of interest is **observations**. You can see column names and other metadata.
 1. To view the actual data, in the main window, click **New SQL Editor tab**. This opens an environment in which you can enter and run SQL queries.
 1. Enter a query and click **Run**. For example, for the sample OECD data, if you do `select * from observations limit 10;`, you should see output like this:
@@ -294,7 +296,7 @@ Any time you make changes to the website and want to deploy your changes to the 
    If you don't specify the <code>--package</code> option, the package name and tag will be the same as the source image.
    </div>
     <div><ol><li>Build a local version of the Docker image, following the procedure in <a href="/custom_dc/build_image.html#build-repo">Build a local image</a>.</li>
-      <li>Generate credentials for the Docker package. 
+      <li>Generate credentials for the Docker package: 
     <pre>gcloud auth configure-docker <var>REGION</var>-docker.pkg.dev</pre></li>
    <li>Create a package from the source image you created in step 1:
     <pre>docker tag <var>SOURCE_IMAGE_NAME</var>:<var>SOURCE_IMAGE_TAG</var> \
@@ -302,12 +304,11 @@ Any time you make changes to the website and want to deploy your changes to the 
    The artifact repo is <code><var>PROJECT_ID</var>-artifacts</code>.</li>
    <li>Push the image to the registry:
    <pre>docker push <var>CONTAINER_IMAGE_URL</var></pre>
-    The container image URL is the full name of the package you created in the previous step, including the tag.</li>
+    The container image URL is the full name of the package you created in the previous step, including the tag. For example: `us-central1-docker-pkg.dev/myproject/myrepo/datacommons:latest`.</li>
   </ol>
    </div>
   </div>
 </div>
-
 - The target image name and tag can be the same as the source or different.
 - Docker package names must be in the format <code><var>REGION</var>-docker-pkg.dev</code>. The default region in the Terraform scripts is `us-central1`.
 
@@ -346,29 +347,22 @@ You need to restart the services container every time you make changes to the co
   <div class="active">
            <ol>
            <li>Go to the <a href="https://console.cloud.google.com/run/services" target="_blank">https://console.cloud.google.com/run/services</a> page for your project.</li>
-             <li>From the list of services, click the link of the service created by the Terraform scripts</li>
-             <li>click <b>Edit & Deploy Revision</b>.</li>
+             <li>From the list of services, click the link of the service created by the Terraform scripts.</li>
+             <li>Click <b>Edit & Deploy Revision</b>.</li>
            <li>Under <b>Container image URL</b>, click <b>Select</b>.</li>
            <li>Expand the package name you created in the previous step.</li>
            <li>Expand the image name of the container, and select the tag you created in the previous step.</li>
            <li>Click <b>Deploy</b>. It will take several minutes for the service to start. You can click the <b>Logs</b> tab to view the progress.</li>
         </ol>
       </div>
-    <div>
-      <li>From any local directory, run the following command:
-        <pre>gcloud run deploy <var>SERVICE_NAME</var> --image <var>CONTAINER_IMAGE_URL</var></pre></li>
-        <li>To view the startup status, run the following command:
+    <div><p>From any local directory, run the following command:
+      <pre>gcloud run deploy <var>SERVICE_NAME</var> --image <var>CONTAINER_IMAGE_URL</var></pre></p>
+      <p> To view the startup status, run the following command:
             <pre>gcloud beta run jobs logs tail <var>SERVICE_NAME</var></pre>
-          </li>
-          The service name is <code><var>NAMESPACE</var>-datacommons-web-service</code>.
-          The container image URL is the name of the package you created in the previous step.
-      </ol>
+    </p>
      </div>
-   <div>
+   </div>
   </div>
-  </div>
-</div>
-
 
 ### View your running application {#view-app}
 
@@ -378,6 +372,14 @@ The URL for your service is in the form <code>https://<var>NAMESPACE</var>-datac
 1. From the list of services, click the link the service created by the Terraform script. The app URL appears at the top of the page. If the service is running, the URL will be a clickable link. When you click on it, it should open in in another browser window or tab.
 
 If the link is not clickable and the service is not running, go back to the Console Cloud Run page, click the  **Logs** tab and look for errors. Also check the output of your `terraform apply` run.
+
+### Connect an AI agent to the MCP server
+
+To connect an AI agent to the cloud service:
+
+1. Obtain the app URL from the previous step.
+1. In the configuration for the agent/client, specify the HTTP URL as <code>https://<var>APP_URL</var>/mcp</code>. 
+1. Run the agent as usual.
 
 <script src="/assets/js/customdc-doc-tabs.js"></script>
 
@@ -403,6 +405,7 @@ To create additional deployments:
 cp terraform.tfvars terraform_prod.tfvars
 ```
 > Tip: You may wish to rename the original `terraform.tfvars` to something more descriptive as well.
+
 1. Do any of the following:
    - If you intend to run the new deployment in a different GCP project, edit the `project_id` variable and specify the project ID.
    - If you intend to run the new deployment in the same GCP project, edit the `namespace` variable to name it according to the environment you are creating, e.g. `-prod`. When you run the deployment, all created services will use the new namespace.

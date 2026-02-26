@@ -28,7 +28,7 @@ The endpoints can be roughly grouped into four categories:
 
 -   **Graph query/SPARQL**: Given a subgraph where some of the nodes are
     variables, retrieve possible matches. This corresponds to a subset of the
-    graph query language [SPARQL](https://www.w3.org/TR/rdf-sparql-query/){: target="_blank"}. This is useful for complex node connections which would require multiple API calls; for example, "hate crimes motivated by disability status in Californian cities".
+    graph query language [SPARQL](https://www.w3.org/TR/rdf-sparql-query/){: target="_blank"}. This is useful for complex node connections which would require multiple API calls; for example, "hate crimes motivated by disability status in Californian cities". 
 
 In addition, Data Commons provides additional tools for accessing its data that call the REST APIs under the hood:
 
@@ -40,14 +40,15 @@ Finally, an R client library is available from a third-party provider, [Tidy Int
 {: #get-key}
 ## API keys
 
-A key is required by some APIs to authenticate and authorize requests.
-- All REST [V2](rest/v2/index.md) and some [V1](rest/v1/index.md) APIs. These requests are served by endpoints at `api.datacommons.org`.
+A key is required for APIs to authenticate and authorize requests, as follows:
+- All REST [V2](rest/v2/index.md) APIs. These requests are served by endpoints at `api.datacommons.org`.
 - [Python and Pandas V2](python/v2/index.md) APIs, also served by `api.datacommons.org`.
+- Data Commons MCP server requests. These are served by `api.datacommons.org/mcp`. 
 - All requests coming from a custom Data Commons instance. These are also served by `api.datacommons.org`.
+- Data Commons MCP server requests. These are served by `api.datacommons.org/mcp`.
 - Data Commons NL API requests (used by the [DataGemma](https://ai.google.devgit/gemma/docs/datagemma){: target="_blank"} tool). These are served by endpoints at `nl.datacommons.org`.
 
 A key is currently not required for the following, although this may change in the future:
-- V1 Python and Pandas client libraries
 - Google Sheets
 - Web Components
 
@@ -57,7 +58,6 @@ Data Commons API keys are managed by a self-service portal. To obtain an API key
 
 To use the key in requests, see the relevant documentation:
 - [REST V2 APIs](/api/rest/v2/index.html#authentication).
-- [REST V1 APIs](/api/rest/v1/getting_started.html#authentication).
 - [Python/Pandas V2 APIs](api/python/v2/index.html#authentication).
 - For NL APIs in DataGemma, see the Colab notebooks in [https://github.com/datacommonsorg/llm-tools/tree/main/notebooks](https://github.com/datacommonsorg/llm-tools/tree/main/notebooks){: target="_blank"}
 
