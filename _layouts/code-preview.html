@@ -7,7 +7,7 @@ For maintainers: Set the url to display using the iframe_content_url variable in
 
 <html lang="en">
   <head>
-    <title>{{ page.title }} - Docs - Data Commons</title>
+    <title>{{ page.title | escape }} - Docs - Data Commons</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta
       name="viewport"
@@ -50,7 +50,7 @@ For maintainers: Set the url to display using the iframe_content_url variable in
           </div>
           <div id="preview">
             <h3>Preview</h3>
-            <iframe id="iframe" src="{{ page.iframe_content_url }}"></iframe>
+            <iframe id="iframe" src="{{ page.iframe_content_url | escape}}" sandbox="allow-scripts"></iframe>
           </div>
         </div>
       </main>
@@ -59,7 +59,7 @@ For maintainers: Set the url to display using the iframe_content_url variable in
     <script>
       // Fetch the source code for the page and display it in the source code
       // div.
-      const fileUrl = "{{ page.iframe_content_url }}";
+      const fileUrl = "{{ page.iframe_content_url | escape }}";
       fetch(fileUrl)
         .then((response) => {
           if (!response.ok) throw new Error("Network response was not ok");
